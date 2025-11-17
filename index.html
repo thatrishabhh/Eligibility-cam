@@ -422,7 +422,7 @@
         .premium-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 900px;
+            min-width: 1300px;
         }
 
         .premium-table thead {
@@ -439,10 +439,70 @@
             letter-spacing: 1px;
         }
 
+        /* Highlight EMI column header */
+        .premium-table th:nth-child(6) {
+            background: linear-gradient(135deg, #5b21b6, #6d28d9);
+            position: relative;
+        }
+
+        /* Highlight Rate column header */
+        .premium-table th:nth-child(8) {
+            background: linear-gradient(135deg, #b45309, #d97706);
+            position: relative;
+        }
+
         .premium-table td {
             padding: 1rem 1.25rem;
             border-bottom: 1px solid #f1f5f9;
             color: var(--dark);
+        }
+
+        /* Style EMI column cells */
+        .premium-table td:nth-child(6) {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            font-weight: 600;
+            position: relative;
+            min-width: 120px;
+        }
+
+        /* Style Rate column cells */
+        .premium-table td:nth-child(8) {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            font-weight: 600;
+            position: relative;
+            min-width: 100px;
+        }
+
+        /* Style EMI input field */
+        .premium-table td:nth-child(6) input {
+            background: white;
+            border: 2px solid var(--primary);
+            font-weight: 600;
+            color: var(--primary-dark);
+            text-align: right;
+            padding-right: 1rem;
+        }
+
+        .premium-table td:nth-child(6) input:focus {
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 3px rgba(0, 115, 60, 0.1);
+            outline: none;
+        }
+
+        /* Style Rate input field */
+        .premium-table td:nth-child(8) input {
+            background: white;
+            border: 2px solid var(--warning);
+            font-weight: 600;
+            color: var(--warning);
+            text-align: right;
+            padding-right: 1rem;
+        }
+
+        .premium-table td:nth-child(8) input:focus {
+            border-color: var(--warning);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+            outline: none;
         }
 
         .premium-table input,
@@ -458,6 +518,33 @@
         .premium-table select:disabled {
             background: #f3f4f6;
             color: #9ca3af;
+        }
+
+        /* Add visual indicator for calculated EMI values */
+        .premium-table td:nth-child(6) input[readonly] {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            cursor: not-allowed;
+        }
+
+        /* Add visual indicator for calculated Rate values */
+        .premium-table td:nth-child(8) input[readonly] {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            cursor: not-allowed;
+        }
+
+        /* Responsive adjustment for smaller screens */
+        @media (max-width: 1024px) {
+            .premium-table {
+                min-width: 1300px;
+            }
+
+            .premium-table td:nth-child(6) {
+                min-width: 100px;
+            }
+
+            .premium-table td:nth-child(8) {
+                min-width: 80px;
+            }
         }
 
         .btn {
@@ -1038,8 +1125,6 @@
                         <optgroup label="High-Tier (Best FOIR)">
                             <option value="Government">Government</option>
                             <option value="Super Cat A">Super Cat A</option>
-                        </optgroup>
-                        <optgroup label="Mid-Tier">
                             <option value="Cat A">Cat A</option>
                             <option value="Cat B">Cat B</option>
                             <option value="Cat C">Cat C</option>
@@ -1217,6 +1302,7 @@
                             <th>Party</th>
                             <th>Obligation %</th>
                             <th>Sanction</th>
+                            <th>Outstanding</th>
                             <th>EMI</th>
                             <th>Tenure (m)</th>
                             <th>Rate (%)</th>
@@ -1422,8 +1508,7 @@
             const tdsDed = byId('tdsDed').value;
             const hasEmail = byId('hasOfficialEmail').value;
 
-            const highTierCategories = ['Government', 'Super Cat A'];
-            const midTierCategories = ['Cat A', 'Cat B', 'Cat C'];
+            const highTierCategories = ['Government', 'Super Cat A', 'Cat A', 'Cat B', 'Cat C'];
             const lowerTierCategories = ['Cat D', 'Nonlisted'];
 
             let foirPercentage;
@@ -1437,15 +1522,6 @@
                 else if (salary >= 90000 && salary <= 149999) foirPercentage = 75;
                 else if (salary >= 150000) foirPercentage = 75;
                 else foirPercentage = 50; // default
-            } else if (midTierCategories.includes(companyCategory)) {
-                if (salary < 45000) foirPercentage = 45;
-                else if (salary >= 45000 && salary <= 54999) foirPercentage = 50;
-                else if (salary >= 55000 && salary <= 59999) foirPercentage = 55;
-                else if (salary >= 60000 && salary <= 69999) foirPercentage = 60;
-                else if (salary >= 70000 && salary <= 89999) foirPercentage = 65;
-                else if (salary >= 90000 && salary <= 149999) foirPercentage = 70;
-                else if (salary >= 150000) foirPercentage = 75;
-                else foirPercentage = 45; // default
             } else if (lowerTierCategories.includes(companyCategory)) {
                 if (salary < 45000) foirPercentage = 40;
                 else if (salary >= 45000 && salary <= 54999) foirPercentage = 45;
@@ -1503,9 +1579,10 @@
                     </select>
                 </td>
                 <td><input type="number" class="loan-sanction" placeholder="Amount"></td>
+                <td><input type="number" class="loan-outstanding" placeholder="Amount"></td>
                 <td><input type="number" class="loan-emi" placeholder="EMI"></td>
                 <td><input type="number" class="loan-tenure" placeholder="Months"></td>
-                <td><input type="number" class="loan-rate" placeholder="%" step="0.1"></td>
+                <td><input type="number" class="loan-rate" placeholder="%" step="1.0"></td>
                 <td>
                     <select class="loan-bt">
                         <option value="No">No</option>
@@ -1528,7 +1605,7 @@
             const loanTypeSelect = row.querySelector('.loan-type');
             const btSelect = row.querySelector('.loan-bt');
             loanTypeSelect.addEventListener('change', () => {
-                if (loanTypeSelect.value === 'Home Loan') {
+                if (loanTypeSelect.value === 'Home Loan' || loanTypeSelect.value === "Gold Loan" || loanTypeSelect.value === "Vehicle Loan" || loanTypeSelect.value === "Business Loan") {
                     btSelect.value = 'No';
                     btSelect.disabled = true;
                 } else {
@@ -1539,6 +1616,7 @@
 
         function setupEMICalculation(row) {
             const sanction = row.querySelector('.loan-sanction');
+            const outstanding = row.querySelector('.loan-outstanding');
             const tenure = row.querySelector('.loan-tenure');
             const rate = row.querySelector('.loan-rate');
             const emi = row.querySelector('.loan-emi');
@@ -1548,6 +1626,7 @@
                 if (calculationCompleted) return;
 
                 const p = toNum(sanction.value);
+                const o = toNum(outstanding.value);
                 const t = parseInt(tenure.value, 10) || 0;
                 const r = toNum(rate.value);
                 const type = loanType.value;
@@ -1562,7 +1641,7 @@
                 }
             };
 
-            [sanction, tenure, rate, loanType].forEach(el => {
+            [sanction, outstanding, tenure, rate, loanType].forEach(el => {
                 el.addEventListener('input', calculateEMI);
                 el.addEventListener('change', calculateEMI);
             });
@@ -1601,9 +1680,9 @@
         // --- MERGED Eligibility Logic ---
 
         const LENDER_POOLS = {
-            premium: ['HDFC Bank', 'ICICI Bank', 'Axis Bank', 'Kotak Bank', 'IndusInd Bank'],
+            premium: ['HDFC Bank', 'ICICI Bank', 'Axis Bank', 'Kotak Bank', 'IndusInd Bank', "IDFC First Bank"],
             standard: ['Tata Capital', 'Bajaj Finance'],
-            conservative: ['ABFL', 'Fullerton India', 'InCred', 'Shriram Finance', 'Chola'],
+            conservative: ['ABFL', 'Fullerton India', 'InCred', 'Shriram Finance', 'Cholamandalam'],
             specialist: ['L&T', 'Piramal', 'Godrej', 'Lending Kart', 'Indifie', 'Paycence']
         };
 
@@ -1706,7 +1785,7 @@
 
             // Age-based special case (from old logic)
             if (age >= 23 && age < 25) {
-                if (turnover >= 5000000 && gst === 'yes' && itr === 'yes') return ['Bajaj', 'Chola'];
+                if (turnover >= 5000000 && gst === 'yes' && itr === 'yes') return ['Bajaj', 'Cholamandalam'];
                 return [];
             }
 
@@ -1714,23 +1793,23 @@
             if (turnover >= 5000000) {
                 // Combined lender list from both logic sets
                 if (gst === 'yes' && license !== 'N/A') {
-                    lenders.push(...['Bajaj', 'Tata', 'Chola', 'InCred', 'Paycence', 'Shriram Finance', 'Lending Kart', 'Indifie']);
+                    lenders.push(...['Bajaj', 'Tata', 'Cholamandalam', 'InCred', 'Paycence', 'Shriram Finance', 'Lending Kart', 'Indifie']);
                 }
                 if (gst === 'yes' && itr === 'yes') {
-                    lenders.push(...['Bajaj', 'Tata', 'Chola', 'Indifie', 'Piramal', 'Shriram Finance', 'InCred', 'Paycence']);
+                    lenders.push(...['Bajaj', 'Tata', 'Cholamandalam', 'Indifie', 'Piramal', 'Shriram Finance', 'InCred', 'Paycence']);
                 }
                 if (gst === 'N/A' && itr === 'yes' && license !== 'yes') {
-                    lenders.push(...['Bajaj', 'Tata', 'Chola', 'InCred', 'Paycence', 'Shriram Finance', 'Lending Kart', 'Indifie']);
+                    lenders.push(...['Bajaj', 'Tata', 'Cholamandalam', 'InCred', 'Paycence', 'Shriram Finance', 'Lending Kart', 'Indifie']);
                 }
             }
 
             if (turnover >= 10000000) {
                 // Combined lender list from both logic sets
                 if (gst === 'yes' && itr === 'yes' && license !== 'N/A') {
-                    lenders.push(...['Bajaj', 'Tata', 'Chola', 'InCred', 'Paycence', 'ABFL', 'L&T', 'Godrej', 'Shriram Finance', 'Lending Kart', 'Indifie']);
+                    lenders.push(...['Bajaj', 'Tata', 'Cholamandalam', 'InCred', 'Paycence', 'ABFL', 'L&T', 'Godrej', 'Shriram Finance', 'Lending Kart', 'Indifie']);
                 }
                 if (gst === 'N/A' && itr === 'yes' && license !== 'yes') {
-                    lenders.push(...['Bajaj', 'Tata', 'Chola', 'InCred', 'Paycence', 'ABFL', 'L&T', 'Godrej', 'Shriram Finance', 'Lending Kart', 'Indifie']);
+                    lenders.push(...['Bajaj', 'Tata', 'Cholamandalam', 'InCred', 'Paycence', 'ABFL', 'L&T', 'Godrej', 'Shriram Finance', 'Lending Kart', 'Indifie']);
                 }
             }
             // Filter out lenders if proof is weak or unavailable (from new logic)
@@ -1860,6 +1939,7 @@
                             party: row.querySelector('.loan-party').value,
                             obligationPercent,
                             sanction: toNum(row.querySelector('.loan-sanction').value),
+                            outstanding: toNum(row.querySelector('.loan-outstanding').value),
                             emi,
                             netEMI, // Store for PDF
                             tenure: toNum(row.querySelector('.loan-tenure').value),
@@ -1868,7 +1948,7 @@
                         });
 
                         totalObligatedEMI += netEMI;
-                        if (loanType !== 'Home Loan' && btOption === 'Yes') {
+                        if (loanType !== 'Home Loan' && loanType !== "Gold Loan" && loanType !== "Vehicle Loan" && loanType !== "Business Loan" && btOption === 'Yes') {
                             hasBTEligibleLoan = true;
                         }
                     }
@@ -2145,6 +2225,7 @@
                                 <thead>
                                     <tr style="background: #f1f5f9;">
                                         <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">Loan Type</th>
+                                        <th style="padding: 10px; text-align: right; border: 1px solid #e2e8f0;">Sanctioned Amount</th>
                                         <th style="padding: 10px; text-align: right; border: 1px solid #e2e8f0;">Outstanding</th>
                                         <th style="padding: 10px; text-align: right; border: 1px solid #e2e8f0;">EMI</th>
                                         <th style="padding: 10px; text-align: center; border: 1px solid #e2e8f0;">Obligation</th>
@@ -2161,6 +2242,7 @@
                                             <tr>
                                                 <td style="padding: 10px; border: 1px solid #e2e8f0;">${loan.type}</td>
                                                 <td style="padding: 10px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(loan.sanction)}</td>
+                                                <td style="padding: 10px; text-align: right; border: 1px solid #e2e8f0;">${formatCurrency(loan.outstanding)}</td>
                                                 <td style="padding: 10px; text-align: right; border: 1px solid #e2e8f0;">${emiDisplay}</td>
                                                 <td style="padding: 10px; text-align: center; border: 1px solid #e2e8f0;">${loan.obligationPercent}%</td>
                                                 <td style="padding: 10px; text-align: right; border: 1px solid #e2e8f0; font-weight: bold; ${loan.bt === 'Yes' ? 'color: #10b981;' : ''}">${formatCurrency(loan.netEMI)}</td>
